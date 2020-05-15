@@ -1,0 +1,22 @@
+#management:
+#  security:
+#    enabled: false
+server:
+  port: 8081
+
+spring:
+  application:
+    name: admin-client-test
+  boot:
+    admin:
+      client:
+        url: http://localhost:8080
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'

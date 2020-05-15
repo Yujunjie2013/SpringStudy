@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: validtorDemo
+
+
+junjie:
+  test: ${TESTNAME} #TESTNAME 该变量值配置在系统环境变量中，启动时会自动从系统环境中获取，如果没有配置则获取不到

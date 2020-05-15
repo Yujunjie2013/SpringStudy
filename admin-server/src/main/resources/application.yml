@@ -1,0 +1,25 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /admin-server
+
+spring:
+  boot:
+    admin:
+      notify:
+        mail:
+          #当我们已注册的客户端的状态从 UP 变为 OFFLINE 或其他状态，服务端就会自动将电子邮件发送到配置的地址。
+          to: 819828037@qq.com
+          from: 13526880238@163.com
+  mail:
+    host: smtp.163.com
+    username: 13526880238@163.com
+    #   该密码是开启pop3/smtp服务时的临时密码,而不是我们使用该账号登录时的密码
+    password: RPTFNPLKHETGFTVC
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
