@@ -8,16 +8,25 @@ import com.example.security.service.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)//权限控制
+@Order(1)
+/**
+ * 在同时定义了认证服务器和资源服务器后，再去使用授权码模式获取令牌可能会遇到
+ * Full authentication is required to access this resource 的问题，这时候只要确保认证服务器先于资源服务器配置即可，
+ * 比如在在BrowserSecurityConfig上使用@Order(1)，认证服务器的配置类上使用@Order(2)标注，在资源服务器的配置类上使用@Order(3)标注。
+ */
 public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private MyAuthenticationAccessDeniedHandler authenticationAccessDeniedHandler;
@@ -75,12 +84,12 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/login.html").permitAll()//表示跳转到登录页面的请求不被拦截
                 .anyRequest()  // 所有请求
                 .authenticated() // 都需要认证
-                .and()
-                .sessionManagement() // 添加 Session管理器
-                .invalidSessionUrl("/session/invalid") // Session失效后跳转到这个链接
-                .maximumSessions(1)
-                .expiredSessionStrategy(sessionExpiredStrategy)
-                .and()
+//                .and()
+//                .sessionManagement() // 添加 Session管理器
+//                .invalidSessionUrl("/session/invalid") // Session失效后跳转到这个链接
+//                .maximumSessions(1)
+//                .expiredSessionStrategy(sessionExpiredStrategy)
+//                .and()
                 .and().csrf().disable()//CSRF攻击防御关了
                 .apply(smsAuthenticationConfig);//将短信验证码认证配置加到 Spring Security 中
     }

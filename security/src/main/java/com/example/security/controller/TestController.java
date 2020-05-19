@@ -1,5 +1,6 @@
 package com.example.security.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,7 +9,6 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +30,7 @@ public class TestController {
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     /**
-     * 上面代码获取了引发跳转的请求，根据请求是否以.html为结尾来对应不同的处理方法。
+     * 代码获取了引发跳转的请求，根据请求是否以.html为结尾来对应不同的处理方法。
      * 如果是以.html结尾，那么重定向到登录页面，否则返回”访问的资源需要身份认证！”信息，
      * 并且HTTP状态码为401（HttpStatus.UNAUTHORIZED）。
      * <p>
@@ -48,8 +48,10 @@ public class TestController {
         SavedRequest savedRequest = requestCache.getRequest(request, response);
         if (savedRequest != null) {
             String targetUrl = savedRequest.getRedirectUrl();
-            if (StringUtils.endsWithIgnoreCase(targetUrl, ".html"))
+            System.out.println("red:" + targetUrl);
+            if (StringUtils.isNotBlank(targetUrl) && !StringUtils.endsWithIgnoreCase(targetUrl, "/session/invalid")) {
                 redirectStrategy.sendRedirect(request, response, "/login.html");
+            }
         }
         return "访问的资源需要身份认证！";
     }
@@ -67,7 +69,7 @@ public class TestController {
 
     @GetMapping("/session/invalid")
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public String sessionInvalid() {
+    public String sessionInvalid(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return "session已失效，请重新认证";
     }
 

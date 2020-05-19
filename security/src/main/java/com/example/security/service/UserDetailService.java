@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -36,9 +37,9 @@ public class UserDetailService implements UserDetailsService {
         } else {
             authorities = AuthorityUtils.commaSeparatedStringToAuthorityList("test");
         }
-
-        return new User(username, user.getPassword(), user.isEnabled(),
+        User user1 = new User(username, user.getPassword(), user.isEnabled(),
                 user.isAccountNonExpired(), user.isCredentialsNonExpired(),
                 user.isAccountNonLocked(), authorities);
+        return user1;
     }
 }
