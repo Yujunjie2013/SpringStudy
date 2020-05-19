@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
 import org.springframework.security.oauth2.provider.*;
@@ -39,6 +40,8 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
     private ClientDetailsService clientDetailsService;
     @Autowired
     private ObjectMapper mapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //打印成功信息
 //    @Override
@@ -79,7 +82,8 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
         // 3. 校验 ClientId和 ClientSecret的正确性
         if (clientDetails == null) {
             throw new UnapprovedClientAuthenticationException("clientId:" + clientId + "对应的信息不存在");
-        } else if (!StringUtils.equals(clientDetails.getClientSecret(), clientSecret)) {
+//        } else if (!StringUtils.equals(clientDetails.getClientSecret(), clientSecret)) {
+        } else if (!passwordEncoder.matches(clientSecret,clientDetails.getClientSecret())) {
             throw new UnapprovedClientAuthenticationException("clientSecret不正确");
         } else {
             // 4. 通过 TokenRequest构造器生成 TokenRequest

@@ -32,3 +32,14 @@ security:
       client-secret: test1234
       registered-redirect-uri: http://mrbird.cc
 
+
+spring:
+  redis:
+    cluster:
+      nodes:
+        - 106.54.206.104:8001
+        - 106.54.206.104:8002
+        - 106.54.206.104:8003
+        - 106.54.206.104:8004
+        - 106.54.206.104:8005
+        - 106.54.206.104:8006

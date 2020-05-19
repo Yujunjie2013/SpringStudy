@@ -9,25 +9,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)//权限控制
 @Order(1)
+//@EnableAuthorizationServer//认证服务器
 /**
  * 在同时定义了认证服务器和资源服务器后，再去使用授权码模式获取令牌可能会遇到
  * Full authentication is required to access this resource 的问题，这时候只要确保认证服务器先于资源服务器配置即可，
  * 比如在在BrowserSecurityConfig上使用@Order(1)，认证服务器的配置类上使用@Order(2)标注，在资源服务器的配置类上使用@Order(3)标注。
+ * 实际使用Order没有效果，所以是通过类名来进行排序的，所以将AuthorizationServerConfig改名为MyAuthorizationServerConfig
+ *  实际可以看这里:https://blog.csdn.net/ieen_csdn/article/details/86612492
  */
 public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
+    public BrowserSecurityConfig() {
+        System.out.println("BrowserSecurityConfig------");
+    }
+
     @Autowired
     private MyAuthenticationAccessDeniedHandler authenticationAccessDeniedHandler;
     @Autowired
@@ -103,5 +111,12 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
     public PersistentTokenRepository persistentTokenRepository() {
         RedisTokenRepositoryImpl redisTokenRepository = new RedisTokenRepositoryImpl();
         return redisTokenRepository;
+    }
+
+    //    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 }

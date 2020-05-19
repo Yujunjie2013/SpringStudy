@@ -1,14 +1,11 @@
 package com.example.security.config.sms;
 
 import com.example.security.Cons;
-import com.example.security.bean.SmsCode;
-import com.example.security.controller.ValidateCodeController;
 import com.example.security.exception.ValidateCodeException;
+import com.example.security.service.RedisCodeService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.social.connect.web.HttpSessionSessionStrategy;
-import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -28,8 +25,9 @@ import java.io.IOException;
 public class SmsCodeFilter extends OncePerRequestFilter {
     @Autowired
     private AuthenticationFailureHandler authenticationFailureHandler;
-
-    private SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
+    @Autowired
+    private RedisCodeService redisCodeService;
+//    private SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
 
 
     @Override
@@ -49,22 +47,24 @@ public class SmsCodeFilter extends OncePerRequestFilter {
     private void validateSmsCode(ServletWebRequest servletWebRequest) throws ServletRequestBindingException {
         String smsCodeInRequest = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "smsCode");
         String mobile = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "mobile");
-        SmsCode codeInSession = (SmsCode) sessionStrategy.getAttribute(servletWebRequest, ValidateCodeController.SESSION_KEY_SMS_CODE + mobile);
+        String codeInRedis = redisCodeService.get(servletWebRequest, mobile);
 
         if (StringUtils.isBlank(smsCodeInRequest)) {
             throw new ValidateCodeException("验证码不能为空！");
         }
-        if (codeInSession == null) {
-            throw new ValidateCodeException("验证码不存在，请重新发送！");
-        }
-        if (codeInSession.isExpire()) {
-            sessionStrategy.removeAttribute(servletWebRequest, ValidateCodeController.SESSION_KEY_SMS_CODE + mobile);
+        if (codeInRedis == null) {
             throw new ValidateCodeException("验证码已过期，请重新发送！");
         }
-        if (!StringUtils.equalsIgnoreCase(codeInSession.getCode(), smsCodeInRequest)) {
+        if (!StringUtils.equalsIgnoreCase(codeInRedis, smsCodeInRequest)) {
             throw new ValidateCodeException("验证码不正确！");
         }
-        sessionStrategy.removeAttribute(servletWebRequest, ValidateCodeController.SESSION_KEY_SMS_CODE + mobile);
+//        sessionStrategy.removeAttribute(servletWebRequest, ValidateCodeController.SESSION_KEY_SMS_CODE + mobile);
+        try {
+            redisCodeService.remove(servletWebRequest, mobile);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ValidateCodeException(e.getMessage());
+        }
 
     }
 }

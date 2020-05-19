@@ -2,7 +2,9 @@ package com.example.security.controller;
 
 import com.example.security.bean.ImageCode;
 import com.example.security.bean.SmsCode;
+import com.example.security.service.RedisCodeService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,13 +25,21 @@ public class ValidateCodeController {
     public final static String SESSION_KEY_SMS_CODE = "SESSION_KEY_SMS_CODE";
 
     private SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
+    @Autowired
+    private RedisCodeService redisCodeService;
 
     @GetMapping("/code/sms")
-    public void createSmsCode(HttpServletRequest request, HttpServletResponse response, String mobile) throws IOException {
+    public String createSmsCode(HttpServletRequest request, HttpServletResponse response, String mobile) throws IOException {
         SmsCode smsCode = createSMSCode();
-        sessionStrategy.setAttribute(new ServletWebRequest(request), SESSION_KEY_SMS_CODE + mobile, smsCode);
+        try {
+            redisCodeService.save(smsCode, new ServletWebRequest(request), mobile);
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+//        sessionStrategy.setAttribute(new ServletWebRequest(request), SESSION_KEY_SMS_CODE + mobile, smsCode);
         // 输出验证码到控制台代替短信发送服务
         System.out.println("您的登录验证码为：" + smsCode.getCode() + "，有效时间为60秒");
+        return "验证码发送成功";
     }
 
     private SmsCode createSMSCode() {
