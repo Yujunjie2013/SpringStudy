@@ -1,0 +1,14 @@
+security:
+  oauth2:
+    client:
+      client-id: test1
+      client-secret: test1111
+      user-authorization-uri: http://127.0.0.1:8081/oauth/authorize
+      access-token-uri: http://127.0.0.1:8081/oauth/token
+    resource:
+      jwt:
+        key-uri: http://127.0.0.1:8081/oauth/token_key
+server:
+  port: 9090
+  servlet:
+    context-path: /app1

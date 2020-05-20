@@ -63,45 +63,51 @@ public class MyAuthenticationSucessHandler implements AuthenticationSuccessHandl
 //            System.out.println("savedRequest为Null");
 //            redirectStrategy.sendRedirect(request, response, "/home");//登录成功，重定向其他接口
 //        }
-        System.out.println("开始了onAuthenticationSuccess");
-        // 1. 从请求头中获取 ClientId
-        String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Basic ")) {
-            throw new UnapprovedClientAuthenticationException("请求头中无client信息");
-        }
-
-        String[] tokens = this.extractAndDecodeHeader(header, request);
-        String clientId = tokens[0];
-        String clientSecret = tokens[1];
-
-        TokenRequest tokenRequest = null;
-
-        // 2. 通过 ClientDetailsService 获取 ClientDetails
-        ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
-
-        // 3. 校验 ClientId和 ClientSecret的正确性
-        if (clientDetails == null) {
-            throw new UnapprovedClientAuthenticationException("clientId:" + clientId + "对应的信息不存在");
-//        } else if (!StringUtils.equals(clientDetails.getClientSecret(), clientSecret)) {
-        } else if (!passwordEncoder.matches(clientSecret,clientDetails.getClientSecret())) {
-            throw new UnapprovedClientAuthenticationException("clientSecret不正确");
+        String requestURI = request.getRequestURI();
+        System.out.println("开始了onAuthenticationSuccess" + requestURI);
+        if (StringUtils.equalsIgnoreCase(request.getMethod(), "post") && StringUtils.endsWithIgnoreCase(requestURI, "/login")) {
+            System.out.println("登录");
         } else {
-            // 4. 通过 TokenRequest构造器生成 TokenRequest
-            tokenRequest = new TokenRequest(new HashMap<>(), clientId, clientDetails.getScope(), "custom");
+            // 1. 从请求头中获取 ClientId
+            String header = request.getHeader("Authorization");
+            if (header == null || !header.startsWith("Basic ")) {
+                throw new UnapprovedClientAuthenticationException("请求头中无client信息");
+            }
+
+            String[] tokens = this.extractAndDecodeHeader(header, request);
+            String clientId = tokens[0];
+            String clientSecret = tokens[1];
+
+            TokenRequest tokenRequest = null;
+
+            // 2. 通过 ClientDetailsService 获取 ClientDetails
+            ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
+
+            // 3. 校验 ClientId和 ClientSecret的正确性
+            if (clientDetails == null) {
+                throw new UnapprovedClientAuthenticationException("clientId:" + clientId + "对应的信息不存在");
+//        } else if (!StringUtils.equals(clientDetails.getClientSecret(), clientSecret)) {
+            } else if (!passwordEncoder.matches(clientSecret, clientDetails.getClientSecret())) {
+                throw new UnapprovedClientAuthenticationException("clientSecret不正确");
+            } else {
+                // 4. 通过 TokenRequest构造器生成 TokenRequest
+                tokenRequest = new TokenRequest(new HashMap<>(), clientId, clientDetails.getScope(), "custom");
+            }
+
+            // 5. 通过 TokenRequest的 createOAuth2Request方法获取 OAuth2Request
+            OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
+            // 6. 通过 Authentication和 OAuth2Request构造出 OAuth2Authentication
+            OAuth2Authentication auth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
+
+            // 7. 通过 AuthorizationServerTokenServices 生成 OAuth2AccessToken
+            OAuth2AccessToken token = authorizationServerTokenServices.createAccessToken(auth2Authentication);
+
+            // 8. 返回 Token
+            log.info("登录成功");
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(new ObjectMapper().writeValueAsString(token));
         }
 
-        // 5. 通过 TokenRequest的 createOAuth2Request方法获取 OAuth2Request
-        OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
-        // 6. 通过 Authentication和 OAuth2Request构造出 OAuth2Authentication
-        OAuth2Authentication auth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
-
-        // 7. 通过 AuthorizationServerTokenServices 生成 OAuth2AccessToken
-        OAuth2AccessToken token = authorizationServerTokenServices.createAccessToken(auth2Authentication);
-
-        // 8. 返回 Token
-        log.info("登录成功");
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(token));
     }
 
     private String[] extractAndDecodeHeader(String header, HttpServletRequest request) {

@@ -14,13 +14,21 @@ import java.util.List;
 @RequestMapping("/test")
 public class TestController {
 
-    @Value("${junjie.test}")
-    String test;
+//    @Value("${junjie.test}")
+//    String test;
 //    @Value("${junjie.uname}")
     private String UName;
 
     @Value("${spring.application.name}")
     String name;
+
+    @Value("${server.port}")
+    private String port;
+
+    @GetMapping("/get")
+    public String get(){
+        return "成功了"+port;
+    }
 
     @PostMapping("/post")
     public String test(@RequestBody @Validated TestParams testParams) {
@@ -28,11 +36,11 @@ public class TestController {
     }
 
 
-    @GetMapping()
-    public String get() {
-        System.out.println("获取到test的值:" + test);
-        return "Get 请求--test:"+test+"---uName:"+UName;
-    }
+//    @GetMapping()
+//    public String get() {
+//        System.out.println("获取到test的值:" + test);
+//        return "Get 请求--test:"+test+"---uName:"+UName;
+//    }
 
 
     public static void main(String[] args) {

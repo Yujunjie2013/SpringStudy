@@ -11,7 +11,13 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @Order(2)
@@ -30,6 +36,10 @@ public class MyAuthorizationServerConfig extends AuthorizationServerConfigurerAd
     private PasswordEncoder passwordEncoder;
     @Autowired
     private TokenStore redisTokenStore;
+    @Autowired
+    private JwtAccessTokenConverter jwtAccessTokenConverter;
+    @Autowired
+    private TokenEnhancer tokenEnhancer;
 
     public MyAuthorizationServerConfig() {
         System.out.println("开始创建对象");
@@ -40,14 +50,23 @@ public class MyAuthorizationServerConfig extends AuthorizationServerConfigurerAd
         if (passwordEncoder != null) {
             System.out.println("---");
         }
+        TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
+        List<TokenEnhancer> enhancers = new ArrayList<>();
+        enhancers.add(tokenEnhancer);
+        enhancers.add(jwtAccessTokenConverter);
+        enhancerChain.setTokenEnhancers(enhancers);
+
         endpoints.authenticationManager(authenticationManager)
                 .userDetailsService(userDetailService)
-                .tokenStore(redisTokenStore);
+                .tokenStore(redisTokenStore)
+                .accessTokenConverter(jwtAccessTokenConverter)
+                .tokenEnhancer(enhancerChain);
     }
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
-        security.passwordEncoder(passwordEncoder);
+        security.passwordEncoder(passwordEncoder)
+                .tokenKeyAccess("isAuthenticated()");// 获取密钥需要身份认证
 
     }
 
@@ -59,14 +78,19 @@ public class MyAuthorizationServerConfig extends AuthorizationServerConfigurerAd
                 .withClient("test1")
                 .secret("test1111")
                 .secret(passwordEncoder.encode("test1111"))
-//                .accessTokenValiditySeconds(3600)
+                .accessTokenValiditySeconds(3600)
                 .refreshTokenValiditySeconds(864000)
                 .scopes("all", "a", "b", "c")
-                .authorizedGrantTypes("password")
+                .redirectUris("http://127.0.0.1:9090/app1/login")
+                .autoApprove(true)//自动授权
+                .authorizedGrantTypes("authorization_code","password", "refresh_token")//如果没有"refresh_token"返回的字段就没有"refresh_token"
                 .and()
                 .withClient("test2")
 //                .secret("test2222")
                 .secret(passwordEncoder.encode("test2222"))
+                .autoApprove(true)
+                .scopes("all", "a", "b", "c")
+                .redirectUris("http://127.0.0.1:9091/app2/login")
                 .accessTokenValiditySeconds(7200);
     }
 
