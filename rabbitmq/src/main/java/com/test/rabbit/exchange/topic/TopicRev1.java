@@ -1,0 +1,37 @@
+package com.test.rabbit.exchange.topic;
+
+import com.rabbitmq.client.*;
+
+public class TopicRev1 {
+    /**
+     * 同一个名称的exchange不能绑定不同的类型
+     */
+    private static final String EXCHANGE_NAME = "topic_logs";
+    private static final String QUEUE_NAME = "direct_queue_1";
+
+    public static void main(String[] argv) throws Exception {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("106.54.206.104");
+        factory.setPort(5672);
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+
+        channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
+        //消费者声明自己的队列
+        channel.queueDeclare(QUEUE_NAME, false, false, true, null);
+        //绑定,#：匹配一个或多个词
+        //
+        //     *：匹配不多不少恰好1个词
+        channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, "red.#.green");
+
+        System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+            String message = new String(delivery.getBody(), "UTF-8");
+            System.out.println(" [x] Received '" +
+                    delivery.getEnvelope().getRoutingKey() + "':'" + message + "'");
+        };
+        channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {
+        });
+    }
+}

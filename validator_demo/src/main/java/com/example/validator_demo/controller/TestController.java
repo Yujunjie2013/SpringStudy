@@ -5,10 +5,13 @@ import com.example.validator_demo.pojo.TestParams;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/test")
@@ -35,6 +38,47 @@ public class TestController {
         return "成功了";
     }
 
+    /**
+     * 线程池
+     */
+    public static ExecutorService FIXED_THREAD_POOL = Executors.newFixedThreadPool(10);
+    @GetMapping("/deferredresult")
+    public DeferredResult<String> deferredResult() throws Exception {
+        System.out.println("控制层执行线程:" + Thread.currentThread().getName());
+        //超时
+        DeferredResult<String> deferredResult = new DeferredResult<String>(10*1000L);
+        deferredResult.onTimeout(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("异步线程执行超时");
+                deferredResult.setResult("线程执行超时");
+            }
+        });
+        deferredResult.onCompletion(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("异步执行完毕");
+            }
+        });
+        FIXED_THREAD_POOL.execute(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("异步执行线程:" + Thread.currentThread().getName());
+                try {
+                    int k = 1;
+                    System.out.println("------------------------在看鱼，不要打扰--------------");
+                    Thread.sleep(1000);
+                    Thread.sleep(3000);
+                    deferredResult.setResult("这是【异步】的请求返回: " + k);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return deferredResult;
+    }
 
 //    @GetMapping()
 //    public String get() {

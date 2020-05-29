@@ -6,6 +6,7 @@
     <modules>
         <module>sso_a</module>
         <module>sso_b</module>
+        <module>rabbit-client</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
