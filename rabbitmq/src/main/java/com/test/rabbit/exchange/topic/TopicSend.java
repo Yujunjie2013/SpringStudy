@@ -5,6 +5,10 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+/**
+ * 详情见官网
+ * <a>https://www.rabbitmq.com/tutorials/tutorial-five-java.html</a>
+ */
 public class TopicSend {
     private static final String EXCHANGE_NAME = "topic_logs";
 
@@ -20,7 +24,7 @@ public class TopicSend {
         //生产者发送消息时，设置消息的Routing Key:"black"
 //        channel.basicPublish(EXCHANGE_NAME, "black", null, message.getBytes());
         //生产者发送消息时，设置消息的Routing Key:"red"
-        channel.basicPublish(EXCHANGE_NAME, "red.yellow.green", null, message.getBytes());
+        channel.basicPublish(EXCHANGE_NAME, "red.yellow", null, message.getBytes());
         //生产者发送消息时，设置消息的Routing Key:"green"
 //        channel.basicPublish(EXCHANGE_NAME, "green", null, message.getBytes());
         //生产者发送消息时，设置消息的Routing Key:"blue"

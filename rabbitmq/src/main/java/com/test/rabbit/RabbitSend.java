@@ -3,10 +3,13 @@ package com.test.rabbit;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+
+import java.nio.charset.StandardCharsets;
+
 /**
  * RabbitMq消息发送
+ * <a>https://www.rabbitmq.com/tutorials/tutorial-one-java.html</a>
  */
-import java.nio.charset.StandardCharsets;
 
 public class RabbitSend {
     private final static String QUEUE_NAME = "hello";

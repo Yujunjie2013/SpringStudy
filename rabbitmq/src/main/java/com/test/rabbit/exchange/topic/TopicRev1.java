@@ -7,7 +7,7 @@ public class TopicRev1 {
      * 同一个名称的exchange不能绑定不同的类型
      */
     private static final String EXCHANGE_NAME = "topic_logs";
-    private static final String QUEUE_NAME = "direct_queue_1";
+    private static final String QUEUE_NAME = "topic_queue_1";
 
     public static void main(String[] argv) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
@@ -18,7 +18,7 @@ public class TopicRev1 {
 
         channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
         //消费者声明自己的队列
-        channel.queueDeclare(QUEUE_NAME, false, false, true, null);
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
         //绑定,#：匹配一个或多个词
         //
         //     *：匹配不多不少恰好1个词

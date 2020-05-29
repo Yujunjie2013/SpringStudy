@@ -7,6 +7,7 @@ import com.rabbitmq.client.ConnectionFactory;
 
 /**
  * Fanout类型会给绑定的所有队列发送消息，无视路由键
+ * <a>https://www.rabbitmq.com/tutorials/tutorial-three-java.html</a>
  */
 public class FanoutSend {
     private static final String EXCHANGE_NAME = "fanout_exchange";

@@ -4,7 +4,7 @@ import com.rabbitmq.client.*;
 
 public class TopicRev2 {
     private static final String EXCHANGE_NAME = "topic_logs";
-    private static final String QUEUE_NAME = "direct_queue_2";
+    private static final String QUEUE_NAME = "topic_queue_2";
 
     public static void main(String[] argv) throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
@@ -15,7 +15,7 @@ public class TopicRev2 {
 
         channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
         //消费者声明自己的队列
-        channel.queueDeclare(QUEUE_NAME, false, false, true, null);
+        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
         //绑定#：匹配一个或多个词
         //
         //     *：匹配不多不少恰好1个词

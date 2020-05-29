@@ -7,6 +7,7 @@ import com.rabbitmq.client.ConnectionFactory;
 
 /**
  * Direct类型时，routinKey是完全匹配才会消费
+ * <a>https://www.rabbitmq.com/tutorials/tutorial-four-java.html</a>
  */
 public class DirectSend {
     private static final String EXCHANGE_NAME = "direct_logs";
