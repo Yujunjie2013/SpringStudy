@@ -7,7 +7,7 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class RabbitMQListener {
     /**
      * 这里的队列名称spring.test.queue，在RabbitApplication中有声明，否则启动会报错

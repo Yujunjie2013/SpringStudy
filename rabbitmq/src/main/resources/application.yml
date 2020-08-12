@@ -1,8 +1,25 @@
 spring:
   rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true # 开启消费者进行重试
+          max-attempts: 5 #最大重试次数
+          initial-interval: 3000 # 重试时间间隔
+        acknowledge-mode: manual # 手动签收模式
+        prefetch: 1 # 每次签收一条消息
+      direct:
+        acknowledge-mode: manual # 手动签收模式
+        prefetch: 1 # 每次签收一条消息
+        retry:
+          enabled: true # 开启消费者进行重试
+          max-attempts: 5 #最大重试次数
+          initial-interval: 3000 # 重试时间间隔
+
     host: 106.54.206.104
     port: 5672
-    publisher-confirm-type: correlated
+    publisher-confirm-type: correlated # 开启消息确认机制
+    publisher-returns: true # 消息在未被队列收到的情况下返回
 #    virtual-host: /
 #    username: guest
 #    password: guest
