@@ -18,8 +18,16 @@ public class StudentController {
 
     @PostMapping("/add")
     public String addStudent(@RequestBody @Validated Student student) {
-        boolean save = studentService.save(student);
-        return save ? "保存成功" : "保存失败";
+//        boolean save = studentService.save(student);
+        redisTemplate.opsForValue().set("student",student);
+        return "保存成功";
+    }
+    @GetMapping("/get")
+    public Student getStudent() {
+//        boolean save = studentService.save(student);
+        Object student = redisTemplate.opsForValue().get("student");
+        System.out.println("内容:"+student);
+        return (Student) redisTemplate.opsForValue().get("student");
     }
 
     @GetMapping("/{id}")
