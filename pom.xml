@@ -7,6 +7,7 @@
         <module>sso_a</module>
         <module>sso_b</module>
         <module>rabbitmq</module>
+        <module>mongo-demo</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
