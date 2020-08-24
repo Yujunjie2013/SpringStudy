@@ -8,6 +8,16 @@
         <module>sso_b</module>
         <module>rabbitmq</module>
         <module>mongo-demo</module>
+        <module>jedis</module>
+        <module>email</module>
+        <module>cache</module>
+        <module>import_test</module>
+        <module>admin</module>
+        <module>actuator</module>
+        <module>admin-client</module>
+        <module>admin-server</module>
+        <module>NettyPro</module>
+        <module>security</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
