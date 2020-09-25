@@ -18,6 +18,9 @@
         <module>admin-server</module>
         <module>NettyPro</module>
         <module>security</module>
+        <module>validator_demo</module>
+        <module>mvcframework</module>
+        <module>TestSpringMVC</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
