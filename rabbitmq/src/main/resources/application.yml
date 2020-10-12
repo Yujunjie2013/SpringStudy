@@ -1,6 +1,9 @@
+
 spring:
   rabbitmq:
     listener:
+#      simple和direct这两项配置似乎不同，经实践得到，生产者发送消息到队列需配置simple项，配置direct项无效，
+#      发送到交换机可配置direct或simple项，下面是一个例子，配置实现“发送完毕需要手动确认”
       simple:
         retry:
           enabled: true # 开启消费者进行重试
@@ -23,3 +26,5 @@ spring:
 #    virtual-host: /
 #    username: guest
 #    password: guest
+server:
+  port: 8080

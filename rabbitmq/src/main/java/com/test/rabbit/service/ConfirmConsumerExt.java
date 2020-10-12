@@ -39,16 +39,25 @@ import java.util.Map;
  *  RabbitMQ不支持队列层面的广播消费，如果需要广播消费，需要在其上进行二次开发，处理逻辑会变得异常复杂，同时也不建议这么做。
  *
  */
-//@Component
+@Component
 @Slf4j
-public class ConfirmConsumer {
+public class ConfirmConsumerExt {
     private HashMap<String, Integer> hashMap = new HashMap<>();
 
+    /**
+     * 根据结果可知，当Exchange和RoutingKey相同、queue不同时，所有消费者都能消费同样的信息；
+     *
+     * 当Exchange和RoutingKey、queue都相同时（最后两个消费者），消费者中只有一个能消费信息，其他消费者都不能消费该信息。
+     * @param message
+     * @param headers
+     * @param channel
+     * @throws Exception
+     */
     @RabbitListener(
             bindings = @QueueBinding(
-                    value = @Queue(value = "top_queue_confirm", autoDelete = "false", exclusive = "false", durable = "true", declare = "false"),
+                    value = @Queue(value = "8080",durable = "true"),
                     exchange = @Exchange(value = "top_confirm", type = ExchangeTypes.TOPIC),
-                    key = {"red.#"}
+                    key = {"test"}
             )
     )
     @RabbitHandler

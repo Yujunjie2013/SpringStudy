@@ -25,13 +25,14 @@ import java.util.UUID;
  *   rabbitmq:
  *     publisher-returns: true
  *
+ *
  */
-//@Service
+@Service
 @Slf4j
-public class ConfirmProvider implements RabbitTemplate.ConfirmCallback, RabbitTemplate.ReturnCallback {
+public class ConfirmProviderExt implements RabbitTemplate.ConfirmCallback, RabbitTemplate.ReturnCallback {
 
     @Autowired
-    RabbitTemplate rabbitTemplate;
+    private RabbitTemplate rabbitTemplate;
 
     @PostConstruct
     public void init() {
@@ -63,6 +64,7 @@ public class ConfirmProvider implements RabbitTemplate.ConfirmCallback, RabbitTe
         //如果不添加CorrelationData 那么confirm方法中回调回来的对象会是null
         CorrelationData correlationData = new CorrelationData(Id);
         correlationData.setReturnedMessage(message);
-        rabbitTemplate.convertAndSend("top_queue_confirm", message, correlationData);
+        //Exchange和RoutingKey都相同，最后两个消费者队列名都相同。
+        rabbitTemplate.convertAndSend("top_confirm","test", message, correlationData);
     }
 }
