@@ -1,30 +1,38 @@
-
 spring:
   rabbitmq:
     listener:
-#      simple和direct这两项配置似乎不同，经实践得到，生产者发送消息到队列需配置simple项，配置direct项无效，
-#      发送到交换机可配置direct或simple项，下面是一个例子，配置实现“发送完毕需要手动确认”
-      simple:
-        retry:
-          enabled: true # 开启消费者进行重试
-          max-attempts: 5 #最大重试次数
-          initial-interval: 3000 # 重试时间间隔
-        acknowledge-mode: manual # 手动签收模式
-        prefetch: 1 # 每次签收一条消息
+      #      simple和direct这两项配置似乎不同
+      # 经实践得到，simple模式的消息在调用监听器容器的线程上消费
+      #           direct模式的消息在在RabbitMQ消费者线程上调用
+      #      发送到交换机可配置direct或simple项，下面是一个例子，配置实现“发送完毕需要手动确认”
+      #      使用哪一个，下面的type要变更成相应的类型simple/direct
+      type: direct
+      #      simple:
+      #        retry:
+      #          enabled: true # 开启消费者进行重试
+      #          max-attempts: 3 #最大重试次数
+      #          initial-interval: 1500 # 重试时间间隔
+      #          max-interval: 5000
+      #        acknowledge-mode: manual # 手动签收模式
+      #        prefetch: 5 # 每次签收一条消息
+      #        default-requeue-rejected: true
       direct:
-        acknowledge-mode: manual # 手动签收模式
-        prefetch: 1 # 每次签收一条消息
         retry:
           enabled: true # 开启消费者进行重试
-          max-attempts: 5 #最大重试次数
-          initial-interval: 3000 # 重试时间间隔
+          max-attempts: 3 #最大重试次数
+          initial-interval: 1500 # 重试时间间隔
+          max-interval: 5000
+        acknowledge-mode: manual # 手动签收模式
+        prefetch: 3 # 每个消费者未确认的最大消息数，如果是1有一个消息未确认，后面的消息就不会再继续消费，如果是3则表示未确认消息数量在未达到3之前可以继续消费
+        default-requeue-rejected: true
 
-    host: 106.54.206.104
+
+    host: 127.0.0.1
     port: 5672
     publisher-confirm-type: correlated # 开启消息确认机制
     publisher-returns: true # 消息在未被队列收到的情况下返回
-#    virtual-host: /
-#    username: guest
-#    password: guest
+    #    virtual-host: /
+    username: admin
+    password: admin
 server:
   port: 8080
