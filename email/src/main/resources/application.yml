@@ -11,3 +11,6 @@ spring:
           starttls:
             enable: true
             required: true
+#logging:
+#  level: info
+#debug: false

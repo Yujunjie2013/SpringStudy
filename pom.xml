@@ -21,6 +21,7 @@
         <module>validator_demo</module>
         <module>mvcframework</module>
         <module>TestSpringMVC</module>
+        <module>jvm</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
