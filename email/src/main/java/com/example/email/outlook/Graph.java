@@ -1,5 +1,6 @@
 package com.example.email.outlook;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -9,6 +10,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.azure.identity.ClientSecretCredential;
+import com.azure.identity.ClientSecretCredentialBuilder;
+import com.microsoft.graph.httpcore.HttpClients;
+import com.microsoft.graph.requests.GroupCollectionPage;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
 import com.azure.identity.DeviceCodeCredential;
@@ -31,54 +37,53 @@ import com.microsoft.graph.options.QueryOption;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.EventCollectionPage;
 import com.microsoft.graph.requests.EventCollectionRequestBuilder;
+import okhttp3.Response;
 
 /**
  * 演示有身份访问
  */
 public class Graph {
-
-    private static GraphServiceClient<Request> graphClient = null;
-    private static TokenCredentialAuthProvider authProvider = null;
-
-    public static void initializeGraphAuth(String applicationId, List<String> scopes) {
-        // Create the auth provider
-        final DeviceCodeCredential credential = new DeviceCodeCredentialBuilder()
-                .clientId(applicationId)
-                .challengeConsumer(challenge -> System.out.println(challenge.getMessage()))
+    public static void main(String[] args) throws IOException {
+        final ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder()
+                .tenantId("679ca43b-5d50-420a-aeec-84558f11dd37")
+                .clientId("1e1f80b0-3d7c-4e4d-bcfd-714112df2647")
+                .clientSecret("q5_7aY.i0s3ciq.j6Gs0zHIhoJhvj8-kg.")
                 .build();
 
-        authProvider = new TokenCredentialAuthProvider(scopes, credential);
-
-        // Create default logger to only log errors
-        DefaultLogger logger = new DefaultLogger();
-        logger.setLoggingLevel(LoggerLevel.ERROR);
-
-        // Build a Graph client
-        graphClient = GraphServiceClient.builder()
-                .authenticationProvider(authProvider)
-                .logger(logger)
+        final TokenCredentialAuthProvider tokenCredentialAuthProvider =
+                new TokenCredentialAuthProvider(Collections.singletonList("https://graph.microsoft.com/.default"), clientSecretCredential);
+//                new TokenCredentialAuthProvider(Collections.singletonList("User.Read.All"), clientSecretCredential);
+        final DefaultLogger defaultLogger = new DefaultLogger();
+        defaultLogger.setLoggingLevel(LoggerLevel.ERROR);
+        final GraphServiceClient<Request> graphClient = GraphServiceClient
+                .builder()
+                .authenticationProvider(tokenCredentialAuthProvider)
+                .logger(defaultLogger)
                 .buildClient();
-    }
 
-    public static String getUserAccessToken() {
-        try {
-            URL meUrl = new URL("https://graph.microsoft.com/v1.0/me");
-            return authProvider.getAuthorizationTokenAsync(meUrl).get();
-        } catch (Exception ex) {
-            return null;
-        }
-    }
+//        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiJhcGk6Ly9mZDVkZTE1Mi0yNGM3LTQwMzctYTMxMS03N2VmNzM5ZmJmMTciLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9mOGNkZWYzMS1hMzFlLTRiNGEtOTNlNC01ZjU3MWU5MTI1NWEvIiwiaWF0IjoxNjIzNDEwNzg2LCJuYmYiOjE2MjM0MTA3ODYsImV4cCI6MTYyMzQ5NzQ4NiwiYWlvIjoiRTJaZ1lNaTZzdVlnMzY1TzRZa0xuZFk0ZkNrMEJBQT0iLCJhcHBpZCI6ImZkNWRlMTUyLTI0YzctNDAzNy1hMzExLTc3ZWY3MzlmYmYxNyIsImFwcGlkYWNyIjoiMSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0L2Y4Y2RlZjMxLWEzMWUtNGI0YS05M2U0LTVmNTcxZTkxMjU1YS8iLCJyaCI6IjAuQVZZQU1lX04tQjZqU2t1VDVGOVhIcEVsV2xMaFhmM0hKRGRBb3hGMzczT2Z2eGNCQUFBLiIsInRpZCI6ImY4Y2RlZjMxLWEzMWUtNGI0YS05M2U0LTVmNTcxZTkxMjU1YSIsInV0aSI6IjlCeGlTSE5xTUVHME9jNl94aWdnQUEiLCJ2ZXIiOiIxLjAifQ.b-TWmsIEw1PexPP5kl5NVfcjqtsdiH9HF1a7scMU8QzaSzEIjgAUv1KFBt7flYQzQW9rSYP1BRSLAa-60Q5nqNZgWoqbYsubHqHj_Z2QDVeo5QQk-nac6ZQhYjdvPzdDEt3vG1jDqfg8dLe-NI_iH8bQqYaFKS1UZc88k3fZ_rvSPzaW-55zmNQZ1Zldmlhkuh4OQ7qoFoH0di_gIoikWwXhQOQ-cEIdcM7jvG-sjqeVMeSl6L6ecERU8ND495_p_gnZMhw-B2hTmK5ys07kE1xymxRX1Xq9jbX9L82vXKQau4kbF3eTMa_Pz3dxFlD5Xjm8Cx14XsNGf4x5e2mY8A";
+//        final Option option = new HeaderOption("Authorization", "Bearer " + token);
+//
+//        final IdentityContainer identityContainer = graphClient.identity().buildRequest(option).get();
+//        System.out.println("fasdfkajs;dfj:" + identityContainer);
 
-    public static void main(String[] args) {
-        // Initialize Graph with auth settings
-        Graph.initializeGraphAuth("f3a2c4db-b13b-45e3-8984-53379a19ef5f", Collections.singletonList("User.Read"));
-        final String accessToken = Graph.getUserAccessToken();
-        System.out.println("====:" + accessToken);
+        System.out.println("-=======--" + graphClient.me().events().buildRequest().get());
+//        final User me = graphClient.me().buildRequest().get();
+//        System.out.println(me);
 
-        String token = "eyJ0eXAiOiJKV1QiLCJub25jZSI6IndDaDY3UWNDcDA5ZDZ1R2ZCc1VMZHNwRGlNY2QtS1IzdkhTc0x0MnpKaGciLCJhbGciOiJSUzI1NiIsIng1dCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyIsImtpZCI6Im5PbzNaRHJPRFhFSzFqS1doWHNsSFJfS1hFZyJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9jMWViNTExMi03OTQ2LTRjOWQtYmM1Ny00MDA0MGNmZTNhOTEvIiwiaWF0IjoxNjIzNDI3MjUzLCJuYmYiOjE2MjM0MjcyNTMsImV4cCI6MTYyMzQzMTE1MywiYWNjdCI6MCwiYWNyIjoiMSIsImFjcnMiOlsidXJuOnVzZXI6cmVnaXN0ZXJzZWN1cml0eWluZm8iLCJ1cm46bWljcm9zb2Z0OnJlcTEiLCJ1cm46bWljcm9zb2Z0OnJlcTIiLCJ1cm46bWljcm9zb2Z0OnJlcTMiLCJjMSIsImMyIiwiYzMiLCJjNCIsImM1IiwiYzYiLCJjNyIsImM4IiwiYzkiLCJjMTAiLCJjMTEiLCJjMTIiLCJjMTMiLCJjMTQiLCJjMTUiLCJjMTYiLCJjMTciLCJjMTgiLCJjMTkiLCJjMjAiLCJjMjEiLCJjMjIiLCJjMjMiLCJjMjQiLCJjMjUiXSwiYWlvIjoiQVNRQTIvOFRBQUFBZUh3a2ZhT2dzcU5qR0RMYzVyVGlqZlpRNUVxWkMxQmV3T0dWclFKRDBlUT0iLCJhbXIiOlsicHdkIl0sImFwcF9kaXNwbGF5bmFtZSI6IkphdmEgR3JhcGggVHV0b3JpYWwiLCJhcHBpZCI6ImYzYTJjNGRiLWIxM2ItNDVlMy04OTg0LTUzMzc5YTE5ZWY1ZiIsImFwcGlkYWNyIjoiMCIsImZhbWlseV9uYW1lIjoiQ04gTWVldGluZyBSb29tIENvbnRyb2xsZXIiLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIxODAuMTYyLjEuMjIyIiwibmFtZSI6IkNOIE1lZXRpbmcgUm9vbSBDb250cm9sbGVyIiwib2lkIjoiOTI2YWVlOTgtMGMxMi00NGVjLWE0Y2UtZDQ4N2NmNmZmODZmIiwib25wcmVtX3NpZCI6IlMtMS01LTIxLTMzNDM4MzQyMjItMjAzMTc5MzgyMC0zMTcyNzAxMTE4LTE1ODgzOTkiLCJwbGF0ZiI6IjE0IiwicHVpZCI6IjEwMDMyMDAwNEQ1QzhFNUIiLCJyaCI6IjAuQVFNQUVsSHJ3VVo1blV5OFYwQUVEUDQ2a2R2RW92TTdzZU5GaVlSVE41b1o3MThEQU9rLiIsInNjcCI6Im9wZW5pZCBwcm9maWxlIFVzZXIuUmVhZCBlbWFpbCIsInN1YiI6IjJIc2pNblY3U1k2SzI2V0I4UFZvZjhhTmxSdHYzNy1LenBSUkxpTFdoRWciLCJ0ZW5hbnRfcmVnaW9uX3Njb3BlIjoiTkEiLCJ0aWQiOiJjMWViNTExMi03OTQ2LTRjOWQtYmM1Ny00MDA0MGNmZTNhOTEiLCJ1bmlxdWVfbmFtZSI6IkNOLU1lZXRpbmdSb29tQ29udHJvbGxlckBlY29sYWIuY29tIiwidXBuIjoiQ04tTWVldGluZ1Jvb21Db250cm9sbGVyQGVjb2xhYi5jb20iLCJ1dGkiOiJfM19TTEE1TWgwdUdaSWx6R2lKdkFBIiwidmVyIjoiMS4wIiwid2lkcyI6WyJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXSwieG1zX2NjIjpbIkNQMSJdLCJ4bXNfc3QiOnsic3ViIjoieEMwYzFFcWwzLU9QQ3FvcFM0RXlmRXlIZDZ1aGI1RDBKZF9pckVUa2QzVSJ9LCJ4bXNfdGNkdCI6MTMxNTA1NDQ3M30.PZ4uz36JcENiKnLuNG39lCKNOX7u54w2vl_95reIQBia6GlG-daZoZjlRJRb74EPCqRBI5z6hGDAp5kvT0N7uVIYOIDIDt7XQn7V8BJSyZC_ozzRuv4_4pWQW1SL2PK0UIDGeyxytJm7JXIitD54o0wWxynSwxfX9tVUSBmG--la-XrVMkQClcl0iCl4keux4eQsMHAmhVrvabgoFKdIFuSfImlv1SDBIw6CGEcbGRJdz7F0twLXm1MdX0kFZouj0mAg9cV1tO1vKnjJHxJSHBGauNf950LbaGYDtjIzk49TlDJLL0mT3602h80uIMizK-IfI-TB0Gh76h4JpDDAug";
-//        User user = getUser();
-//        System.out.println("Welcome " + user.displayName);
-//        System.out.println("Time zone: " + user.mailboxSettings.timeZone);
-        System.out.println();
+
+//        GraphServiceClient graphClient = GraphServiceClient.builder().authenticationProvider(tokenCredentialAuthProvider).buildClient();
+//
+//        Event event = graphClient.groups("02bd9fd6-8f93-4758-87c3-1fb73740a315").events("AQMkAGI5MWY5ZmUyLTJiNzYtNDE0ZC04OWEwLWM3M2FjYmM3NwAzZWYARgAAA_b2VnUAiWNLj0xeSOs499YHAMT2RdsuOqRIlQZ4vOzp66YAAAIBDQAAAMT2RdsuOqRIlQZ4vOzp66YAAAIJOgAAAA==")
+//                .buildRequest()
+//                .get();
+
+//        ClientCredentialProvider authProvider = new ClientCredentialProvider(CLIENT_ID, SCOPES, CLIENT_SECRET, TENANT_GUID, NATIONAL_CLOUD);
+
+        OkHttpClient client = HttpClients.createDefault(tokenCredentialAuthProvider);
+//        Request request = new Request.Builder().url("https://graph.microsoft.com/v1.0/me").build();
+        Request request = new Request.Builder().url("https://graph.microsoft.com/v1.0/users").build();
+        Response response = client.newCall(request).execute();
+        System.out.println(response.body().string());
     }
 }

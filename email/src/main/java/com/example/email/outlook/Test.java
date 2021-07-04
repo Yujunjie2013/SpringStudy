@@ -1,5 +1,7 @@
 package com.example.email.outlook;
 
+import com.azure.identity.AuthorizationCodeCredential;
+import com.azure.identity.AuthorizationCodeCredentialBuilder;
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.microsoft.aad.msal4j.ClientCredentialFactory;
@@ -29,16 +31,15 @@ public class Test {
 
     public static void main(String args[]) throws Exception {
 
-
-        final ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder()
-                .clientId("fd5de152-24c7-4037-a311-77ef739fbf17")
-                .clientSecret("~8LZllFlX.HZJuSw2cs_kMoMESI~07C01-")
-                .tenantId("f8cdef31-a31e-4b4a-93e4-5f571e91255a")
+        final AuthorizationCodeCredential authCodeCredential = new AuthorizationCodeCredentialBuilder()
+                .clientId("1e1f80b0-3d7c-4e4d-bcfd-714112df2647")
+                .clientSecret("q5_7aY.i0s3ciq.j6Gs0zHIhoJhvj8-kg.")
+                .tenantId("679ca43b-5d50-420a-aeec-84558f11dd37")
+//                .redirectUrl(redirectUri)
                 .build();
 
-        final TokenCredentialAuthProvider tokenCredentialAuthProvider =
-                new TokenCredentialAuthProvider(Collections.singletonList("https://graph.microsoft.com/.default"), clientSecretCredential);
-//                new TokenCredentialAuthProvider(Collections.singletonList("Calendars.Read"), clientSecretCredential);
+        final TokenCredentialAuthProvider tokenCredentialAuthProvider
+                = new TokenCredentialAuthProvider(Collections.singletonList("User.Read.All"), authCodeCredential);
 
         final GraphServiceClient graphClient =
                 GraphServiceClient
@@ -46,18 +47,8 @@ public class Test {
                         .authenticationProvider(tokenCredentialAuthProvider)
                         .buildClient();
 
-        CalendarCollectionPage calendars = graphClient.me().calendars()
-                .buildRequest()
-                .get();
-        System.out.println(calendars);
-
-//        JacksonAdapterc adapterc
-//        final User me = graphClient.me().buildRequest().get();
-//        System.out.println("========:"+me);
-//        UserCollectionPage users = graphClient.users()
-//                .buildRequest()
-//                .get();
-//        System.out.println("--->"+users);
+        final User me = graphClient.me().buildRequest().get();
+        System.out.println(me);
 
     }
 
