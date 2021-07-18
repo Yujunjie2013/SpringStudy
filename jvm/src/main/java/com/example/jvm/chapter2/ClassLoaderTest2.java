@@ -1,7 +1,7 @@
 package com.example.jvm.chapter2;
 
 import sun.misc.Launcher;
-import sun.security.ec.CurveDB;
+import sun.security.util.CurveDB;
 
 import java.net.URL;
 import java.security.Provider;
