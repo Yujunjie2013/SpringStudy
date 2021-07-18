@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-client</artifactId>
-            <version>5.2.4.RELEASE</version>
+            <version>5.2.11.RELEASE</version>
             <!--            <exclusions>-->
             <!--                <exclusion>-->
             <!--                    <artifactId>json-smart</artifactId>-->
