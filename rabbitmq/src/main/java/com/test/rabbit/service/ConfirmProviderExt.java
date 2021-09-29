@@ -43,15 +43,31 @@ public class ConfirmProviderExt implements RabbitTemplate.ConfirmCallback, Rabbi
     @Override
     public void confirm(CorrelationData correlationData, boolean ack, String cause) {
         if (ack) {
-            log.info("确认了这条消息{},cause:{}", correlationData, cause);
+            if (correlationData != null) {
+                String id = correlationData.getId();
+                Message returnedMessage = correlationData.getReturnedMessage();
+                log.info("确认了这条消息,correlationData不为null id:{},body:{},cause:{}", id, new String(returnedMessage.getBody()), cause);
+            } else {
+                log.info("确认了这条消息cause:{}", cause);
+            }
         } else {
             log.info("确认失败了:{};出现异常:{}", correlationData, cause);
         }
     }
 
+    /**
+     * 交换机到路由的时候错误回退通知
+     * 注意：这里如果是用死信队列，那么会一直回调改方法，提示NO_ROUTE
+     *
+     * @param message
+     * @param replyCode
+     * @param replyText
+     * @param exchange
+     * @param routingKey
+     */
     @Override
     public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
-        log.info("这条消息发送失败了{},replyCode:{},replyTest:{},exchange:{},routingKey:{}", message, replyCode, replyText, exchange, routingKey);
+        log.info("returnedMessage消息 replyCode:{},replyTest:{},exchange:{},routingKey:{}", replyCode, replyText, exchange, routingKey);
     }
 
     public void publisMessage(String msg) {

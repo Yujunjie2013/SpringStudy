@@ -32,7 +32,7 @@ spring:
     publisher-confirm-type: correlated # 开启消息确认机制
     publisher-returns: true # 消息在未被队列收到的情况下返回
     #    virtual-host: /
-    username: admin
-    password: admin
+    username: guest
+    password: guest
 server:
   port: 8080
