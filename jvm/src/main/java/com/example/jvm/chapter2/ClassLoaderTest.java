@@ -2,6 +2,7 @@ package com.example.jvm.chapter2;
 
 import sun.misc.Launcher;
 
+import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClassLoaderTest {
@@ -24,5 +25,6 @@ public class ClassLoaderTest {
         System.out.println("系统类String的类加载器是:" + String.class.getClassLoader());//null
 
         System.out.println(ReentrantLock.class.getClassLoader());
+        System.out.println(HashMap.class.getClassLoader());
     }
 }

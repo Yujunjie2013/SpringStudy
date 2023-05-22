@@ -12,7 +12,7 @@ public class ClassLoaderTest2 {
         System.out.println("-------启动类加载器————————————");
         final URL[] urLs = Launcher.getBootstrapClassPath().getURLs();
         for (URL urL : urLs) {
-            System.out.println(urL.toExternalForm());
+            System.out.println(urL.toString());
         }
         System.out.println();
         //从上面的路径中的任意一个jar中找一个类加载

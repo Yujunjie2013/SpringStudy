@@ -1,5 +1,8 @@
 package com.example.jvm.chapter2;
 
+import sun.misc.Launcher;
+
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -8,6 +11,8 @@ import java.io.IOException;
  * 自定义类加载器
  */
 public class CustomClassLoader extends ClassLoader {
+    private String path;
+
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         byte[] result = getClassByName(name);
@@ -17,7 +22,9 @@ public class CustomClassLoader extends ClassLoader {
     private byte[] getClassByName(String name) {
         FileInputStream fileInputStream = null;
         try {
-            fileInputStream = new FileInputStream(name);
+            final String fileName = name.replace(".", "/");
+//            fileInputStream = new FileInputStream(new File(path + name + ".class"));
+            fileInputStream = new FileInputStream(new File(path+fileName + ".class"));
             byte[] data = new byte[fileInputStream.available()];
             fileInputStream.read(data);
             return data;
@@ -33,5 +40,9 @@ public class CustomClassLoader extends ClassLoader {
             }
         }
         return new byte[0];
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

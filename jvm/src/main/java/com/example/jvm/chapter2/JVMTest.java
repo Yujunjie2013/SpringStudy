@@ -7,7 +7,7 @@ public class JVMTest {
         num = 3;
         number = 10;
         System.out.println("静态代码块加载num:"+num);
-//        System.out.println(number);//报错，非法的前线向引用
+//        System.out.println(number);//报错，非法的前置引用
     }
 
     private static int number = 20;
